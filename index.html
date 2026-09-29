@@ -534,27 +534,16 @@
               </span>
             </div>
 
-            <!-- Details Grid -->
-            <div class="space-y-2 text-xs">
+            <!-- Details -->
+            <div class="space-y-3 text-xs">
               <div>
                 <span class="text-emerald-400/70 font-semibold uppercase text-[10px] block">Trabajador</span>
-                <span class="text-white font-bold text-base leading-tight block">${worker.nombre_completo}</span>
+                <span class="text-white font-extrabold text-lg leading-tight block">${worker.nombre_completo}</span>
               </div>
 
-              <div class="grid grid-cols-2 gap-2 pt-1">
-                <div class="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
-                  <span class="text-slate-400 font-semibold uppercase text-[9px] block">Casa / Lote</span>
-                  <span class="text-white font-extrabold text-sm">${worker.codigo_casa}</span>
-                </div>
-                <div class="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
-                  <span class="text-slate-400 font-semibold uppercase text-[9px] block">Aseguradora</span>
-                  <span class="text-white font-bold text-xs truncate block">${worker.aseguradora || 'SCTR'}</span>
-                </div>
-              </div>
-
-              <div class="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
-                <span class="text-slate-400 font-semibold uppercase text-[9px] block">Propietario Responsable</span>
-                <span class="text-slate-200 font-bold text-xs">${propietario}</span>
+              <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+                <span class="text-slate-400 font-semibold uppercase text-[10px] block">Propietario</span>
+                <span class="text-white font-bold text-sm block">${propietario}</span>
               </div>
 
               <div class="flex items-center justify-between text-[11px] text-emerald-300/80 pt-1">
