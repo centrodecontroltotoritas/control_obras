@@ -409,11 +409,11 @@
     function formatearFechaTexto(fechaString) {
       if (!fechaString) return '---';
 
-      // Agregar 'T00:00:00' evita problemas de zona horaria al crear el objeto Date
       const fecha = new Date(fechaString + 'T00:00:00');
-
       const opciones = { day: '2-digit', month: 'long' };
-      return fecha.toLocaleDateString('es-PE', opciones);
+
+      // Convierte la fecha a texto y reemplaza cualquier guion por un espacio
+      return fecha.toLocaleDateString('es-PE', opciones).replace(/-/g, ' ');
     }
 
     async function validarDNI() {
