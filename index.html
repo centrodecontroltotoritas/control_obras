@@ -739,6 +739,8 @@
     }
 
     async function marcarSalida(idOrDni) {
+
+      const horaPeru = new Date().toLocaleString("sv-SE", { timeZone: "America/Lima" });
       if (supabaseClient && !IS_DEMO) {
         if (typeof idOrDni === 'number') {
           await supabaseClient
