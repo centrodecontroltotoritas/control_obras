@@ -405,6 +405,17 @@
       } catch (e) { }
     }
 
+    // Función para formatear fechas de "YYYY-MM-DD" a "DD de [mes]"
+    function formatearFechaTexto(fechaString) {
+      if (!fechaString) return '---';
+
+      // Agregar 'T00:00:00' evita problemas de zona horaria al crear el objeto Date
+      const fecha = new Date(fechaString + 'T00:00:00');
+
+      const opciones = { day: '2-digit', month: 'long' };
+      return fecha.toLocaleDateString('es-PE', opciones);
+    }
+
     async function validarDNI() {
       const input = document.getElementById("dniInput");
       const dni = input.value.trim();
@@ -548,7 +559,7 @@
 
               <div class="flex items-center justify-between text-[11px] text-emerald-300/80 pt-1">
                 <span>Vigencia:</span>
-                <span class="font-bold text-white">${worker.fecha_inicio || '---'} al ${worker.fecha_vencimiento}</span>
+                <span class="font-bold text-white">${formatearFechaTexto(worker.fecha_inicio)} al ${formatearFechaTexto(worker.fecha_vencimiento)}</span>
               </div>
             </div>
 
