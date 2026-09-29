@@ -296,9 +296,9 @@
 
   <script>
     // Configuration & State
-    let SUPABASE_URL = localStorage.getItem("tot_supa_url") || "https://tvxngammtltditnnsokn.supabase.co";
-    let SUPABASE_KEY = localStorage.getItem("tot_supa_key") || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR2eG5nYW1tdGx0ZGl0bm5zb2tuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAzMDkyMTEsImV4cCI6MjEwNTg4NTIxMX0.Q9Dav40O7-CAT1IcKVMW2s62QvQfCrR8HauxYNR66Gs";
-    let IS_DEMO = localStorage.getItem("tot_demo") !== "false"; // Por defecto es FALSE (desactivado el demo)
+    let SUPABASE_URL = "https://tvxngammtltditnnsokn.supabase.co";
+    let SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR2eG5nYW1tdGx0ZGl0bm5zb2tuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAzMDkyMTEsImV4cCI6MjEwNTg4NTIxMX0.Q9Dav40O7-CAT1IcKVMW2s62QvQfCrR8HauxYNR66Gs";
+    let IS_DEMO = false;
 
     let supabaseClient = null;
     let currentValidatedWorker = null;
