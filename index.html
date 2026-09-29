@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-900">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>TOTORITAS - Control de Acceso</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Supabase JS CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- FontInter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Prevent blue highlights on touch devices */
+    * {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* Smooth transitions */
+    .animate-pop {
+      animation: pop 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes pop {
+      0% {
+        transform: scale(0.95);
+        opacity: 0;
+      }
+
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+
+<body class="h-full bg-slate-950 text-slate-100 flex flex-col antialiased selection:bg-blue-500 selection:text-white">
+
+  <!-- Header Bar -->
+  <header
+    class="sticky top-0 z-30 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 py-3 flex items-center justify-between shadow-sm">
+    <div class="flex items-center gap-2">
+      <div
+        class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center font-black text-white text-lg tracking-wider shadow-md shadow-blue-500/20">
+        T
+      </div>
+      <div>
+        <h1 class="font-extrabold text-base tracking-wider text-white leading-tight">TOTORITAS</h1>
+        <p class="text-[10px] text-slate-400 font-medium tracking-tight">Control de Garita & SCTR</p>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <!-- Status Badge -->
+      <span id="connectionBadge"
+        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+        <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+        <span>Demo</span>
+      </span>
+
+      <!-- Settings Icon -->
+      <button onclick="openSettingsModal()"
+        class="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
+        title="Configuración">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
+          </path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z">
+          </path>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="flex-1 max-w-md w-full mx-auto p-4 pb-24 overflow-y-auto">
+
+    <!-- ==================== PESTAÑA 1: VALIDAR ==================== -->
+    <section id="tab-validar" class="space-y-4">
+
+      <!-- Input Card -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
+        <label for="dniInput" class="block text-xs font-bold text-slate-400 uppercase tracking-wider">
+          Ingrese DNI
+        </label>
+
+        <div class="space-y-3">
+          <input type="text" id="dniInput" placeholder="Escriba DNI aquí..." maxlength="12" inputmode="numeric"
+            autocomplete="off"
+            class="w-full bg-slate-950 border-2 border-slate-700 focus:border-blue-500 rounded-xl px-4 py-3.5 text-center text-2xl font-black text-white placeholder-slate-600 outline-none transition-all tracking-widest shadow-inner">
+
+          <button id="btnValidar" onclick="validarDNI()"
+            class="w-full bg-blue-600 hover:bg-blue-500 active:scale-[0.98] text-white font-extrabold py-3.5 px-4 rounded-xl shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2 transition-all uppercase tracking-wider text-sm">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+            <span>Validar DNI</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Result Container (Hidden initially) -->
+      <div id="resultadoContainer" class="hidden"></div>
+
+    </section>
+
+    <!-- ==================== PESTAÑA 2: EN OBRA ==================== -->
+    <section id="tab-en-obra" class="hidden space-y-4">
+
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="font-bold text-lg text-white">Trabajadores en Obra</h2>
+          <p class="text-xs text-slate-400">Personal actualmente dentro del condominio</p>
+        </div>
+        <span id="badgeCountEnObra"
+          class="bg-blue-600/20 text-blue-400 border border-blue-500/30 px-3 py-1 rounded-full text-xs font-black">
+          0 personas
+        </span>
+      </div>
+
+      <!-- Buscador rápido en obra -->
+      <div class="relative">
+        <input type="text" id="searchEnObra" oninput="filtrarTrabajadoresEnObra()"
+          placeholder="Buscar por DNI, Nombre o Casa..."
+          class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+        <svg class="w-4 h-4 text-slate-500 absolute left-3.5 top-3" fill="none" stroke="currentColor"
+          viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+      </div>
+
+      <!-- Lista de trabajadores activos -->
+      <div id="listaEnObra" class="space-y-2.5">
+        <!-- Renderizado dinámico -->
+      </div>
+
+    </section>
+
+    <!-- ==================== PESTAÑA 3: HISTORIAL ==================== -->
+    <section id="tab-historial" class="hidden space-y-4">
+
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="font-bold text-lg text-white">Historial de Accesos</h2>
+          <p class="text-xs text-slate-400">Registro completo de entradas y salidas</p>
+        </div>
+        <button onclick="cargarHistorial()" class="text-xs text-blue-400 font-semibold hover:underline">
+          🔄 Actualizar
+        </button>
+      </div>
+
+      <!-- Buscador de historial -->
+      <div class="relative">
+        <input type="text" id="searchHistorial" oninput="filtrarHistorial()"
+          placeholder="Filtrar por DNI, Nombre o Casa..."
+          class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+        <svg class="w-4 h-4 text-slate-500 absolute left-3.5 top-3" fill="none" stroke="currentColor"
+          viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+      </div>
+
+      <!-- Contenedor del historial -->
+      <div id="listaHistorial" class="space-y-2.5">
+        <!-- Renderizado dinámico -->
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Fixed Bottom Navigation Bar -->
+  <nav
+    class="fixed bottom-0 inset-x-0 bg-slate-900/95 border-t border-slate-800 backdrop-blur-lg z-30 max-w-md mx-auto">
+    <div class="grid grid-cols-3 h-16">
+
+      <!-- Tab 1: Validar -->
+      <button id="navBtnValidar" onclick="switchTab('validar')"
+        class="flex flex-col items-center justify-center gap-1 text-blue-500 font-bold text-[11px] transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"
+            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <span>Validar</span>
+      </button>
+
+      <!-- Tab 2: En Obra -->
+      <button id="navBtnEnObra" onclick="switchTab('en-obra')"
+        class="flex flex-col items-center justify-center gap-1 text-slate-400 font-medium text-[11px] transition-colors relative">
+        <div class="relative">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"
+              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
+            </path>
+          </svg>
+          <span id="navBadgeEnObra"
+            class="hidden absolute -top-1 -right-2 bg-blue-600 text-white text-[9px] font-black w-4 h-4 rounded-full items-center justify-center">
+            0
+          </span>
+        </div>
+        <span>En Obra</span>
+      </button>
+
+      <!-- Tab 3: Historial -->
+      <button id="navBtnHistorial" onclick="switchTab('historial')"
+        class="flex flex-col items-center justify-center gap-1 text-slate-400 font-medium text-[11px] transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"
+            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01">
+          </path>
+        </svg>
+        <span>Historial</span>
+      </button>
+
+    </div>
+  </nav>
+
+  <!-- Modal de Configuración Supabase -->
+  <div id="settingsModal"
+    class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 w-full max-w-sm space-y-4 shadow-2xl animate-pop">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="font-bold text-white text-base">Configurar Supabase</h3>
+        <button onclick="closeSettingsModal()" class="text-slate-400 hover:text-white p-1">✕</button>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 mb-1">Supabase URL</label>
+          <input type="text" id="cfgUrl" placeholder="https://xyz.supabase.co"
+            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-blue-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 mb-1">Supabase Anon Key</label>
+          <input type="password" id="cfgKey" placeholder="eyJhbGciOi..."
+            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-blue-500">
+        </div>
+
+        <label class="flex items-center gap-3 bg-slate-950 p-3 rounded-xl border border-slate-800/80 cursor-pointer">
+          <input type="checkbox" id="cfgDemo"
+            class="w-4 h-4 rounded bg-slate-900 border-slate-700 text-blue-600 focus:ring-0">
+          <div>
+            <span class="block text-xs font-bold text-white">Activar Modo Demo</span>
+            <span class="block text-[10px] text-slate-400">Usa datos locales de prueba para testear sin BD</span>
+          </div>
+        </label>
+      </div>
+
+      <button onclick="saveSettings()"
+        class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider shadow-lg shadow-blue-600/30">
+        Guardar Cambios
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // Configuration & State
+    let SUPABASE_URL = localStorage.getItem("tot_supa_url") || "https://tvxngammtltditnnsokn.supabase.co";
+    let SUPABASE_KEY = localStorage.getItem("tot_supa_key") || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR2eG5nYW1tdGx0ZGl0bm5zb2tuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAzMDkyMTEsImV4cCI6MjEwNTg4NTIxMX0.Q9Dav40O7-CAT1IcKVMW2s62QvQfCrR8HauxYNR66Gs";
+    let IS_DEMO = localStorage.getItem("tot_demo") !== "true"; // Por defecto es FALSE (desactivado el demo)
+
+    let supabaseClient = null;
+    let currentValidatedWorker = null;
+
+    // Local Demo Data
+    const demoWorkers = [
+      {
+        dni: "70904461",
+        nombre_completo: "Fabricio Joel Miranda Quezada",
+        codigo_casa: "M012",
+        propietario: "REGGIARDO GILL Soraya Consuelo",
+        fecha_inicio: "2026-09-01",
+        fecha_vencimiento: "2026-10-15",
+        aseguradora: "Rimac SCTR",
+        activo: true
+      },
+      {
+        dni: "4015555",
+        nombre_completo: "Carolina Toro",
+        codigo_casa: "M011",
+        propietario: "VARGAS Oscar",
+        fecha_inicio: "2026-09-01",
+        fecha_vencimiento: new Date().toISOString().split('T')[0], // Expires today -> ACTIVO
+        aseguradora: "Pacífico",
+        activo: true
+      },
+      {
+        dni: "12345678",
+        nombre_completo: "Juan Pérez Obrero",
+        codigo_casa: "M005",
+        propietario: "MEJIA INFANTE Alejandro",
+        fecha_inicio: "2026-01-01",
+        fecha_vencimiento: "2026-08-15", // Expired
+        aseguradora: "Rimac SCTR",
+        activo: true
+      }
+    ];
+
+    let demoHistory = [
+      {
+        id: 101,
+        created_at: new Date(Date.now() - 3600000 * 2).toISOString(), // 2 hours ago
+        fecha_salida: null,
+        dni: "4015555",
+        nombre_trabajador: "Carolina Toro",
+        codigo_casa: "M011",
+        propietario: "VARGAS Oscar",
+        estado: "PERMITIDO",
+        motivo: "SCTR OK"
+      }
+    ];
+
+    function initSupabase() {
+      if (SUPABASE_KEY && !IS_DEMO) {
+        try {
+          supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+          updateBadgeStatus(true);
+        } catch (e) {
+          console.error("Error al iniciar Supabase:", e);
+          updateBadgeStatus(false);
+        }
+      } else {
+        supabaseClient = null;
+        updateBadgeStatus(false);
+      }
+    }
+
+    function updateBadgeStatus(connected) {
+      const badge = document.getElementById("connectionBadge");
+      if (connected) {
+        badge.className = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+        badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span><span>Supabase</span>`;
+      } else {
+        badge.className = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20";
+        badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span><span>Demo</span>`;
+      }
+    }
+
+    function playAudioFeedback(isOk) {
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        const ctx = new AudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        if (isOk) {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
+          osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.1); // E5
+          gain.gain.setValueAtTime(0.15, ctx.currentTime);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.25);
+        } else {
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(220, ctx.currentTime); // A3
+          osc.frequency.setValueAtTime(164.81, ctx.currentTime + 0.12); // E3
+          gain.gain.setValueAtTime(0.2, ctx.currentTime);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.3);
+        }
+      } catch (e) { }
+    }
+
+    async function validarDNI() {
+      const input = document.getElementById("dniInput");
+      const dni = input.value.trim();
+      const container = document.getElementById("resultadoContainer");
+
+      // Declaración explícita de variables
+      let worker = null;
+      let propietario = "No asignado";
+
+      if (supabaseClient && !IS_DEMO) {
+        // Query trabajadores_sctr
+        const { data: workerData, error } = await supabaseClient
+          .from('trabajadores_sctr')
+          .select('*')
+          .eq('dni', dni)
+          .maybeSingle();
+
+        if (workerData) {
+          worker = workerData;
+          // Query directorio para obtener el nombre del dueño
+          if (worker.codigo_casa) {
+            const codigoLimpio = worker.codigo_casa.trim();
+
+            let { data: dirData, error: dirErr } = await supabaseClient
+              .from('directorio')
+              .select('*')
+              .ilike('Codigo', codigoLimpio)
+              .maybeSingle();
+
+            if (dirErr) {
+              const { data: dirDataAlt } = await supabaseClient
+                .from('directorio')
+                .select('*')
+                .ilike('codigo', codigoLimpio)
+                .maybeSingle();
+              dirData = dirDataAlt;
+            }
+
+            if (dirData) {
+              propietario = dirData.Propietario || dirData.propietario || "No asignado";
+            }
+          }
+        }
+      } else {
+        // Local Demo Mode
+        const found = demoWorkers.find(w => w.dni === dni);
+        if (found) {
+          worker = { ...found };
+          propietario = found.propietario;
+        }
+      }
+
+      renderResultadoCard(worker, propietario, dni);
+    }
+
+    function renderResultadoCard(worker, propietario, dni) {
+      const container = document.getElementById("resultadoContainer");
+      container.innerHTML = "";
+      container.classList.remove("hidden");
+
+      const hoyStr = new Date().toISOString().split('T')[0];
+
+      // Caso 1: NO REGISTRADO
+      if (!worker) {
+        playAudioFeedback(false);
+        container.innerHTML = `
+          <div class="bg-red-950/40 border-2 border-red-600/60 rounded-2xl p-5 space-y-3 shadow-xl animate-pop">
+            <div class="flex items-center gap-2.5 text-red-400">
+              <div class="w-8 h-8 rounded-full bg-red-600/20 border border-red-500/40 flex items-center justify-center font-black text-lg">✕</div>
+              <div>
+                <h3 class="font-black text-base text-red-200 uppercase tracking-wide">NO REGISTRADO</h3>
+                <p class="text-xs text-red-400 font-medium">DNI no registrado en el sistema SCTR</p>
+              </div>
+            </div>
+            <p class="text-xs text-red-300/80 bg-red-900/30 p-3 rounded-xl border border-red-800/40">
+              El trabajador con DNI <b>${dni}</b> no cuenta con póliza registrada en el directorio. Acceso denegado.
+            </p>
+          </div>
+        `;
+        return;
+      }
+
+      // Check date & status
+      const hoy = new Date(hoyStr + 'T00:00:00');
+      const vencimiento = new Date(worker.fecha_vencimiento + 'T00:00:00');
+      const diffMs = vencimiento - hoy;
+      const diasRestantes = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+      const isActivo = worker.activo && (diasRestantes >= 0);
+
+      if (isActivo) {
+        // Caso 2: SCTR VIGENTE / ACTIVO
+        playAudioFeedback(true);
+        currentValidatedWorker = {
+          dni: worker.dni,
+          nombre: worker.nombre_completo,
+          codigo_casa: worker.codigo_casa,
+          propietario: propietario
+        };
+
+        const badgeDiasText = diasRestantes === 0
+          ? "Vence hoy mismo"
+          : `${diasRestantes} día${diasRestantes === 1 ? '' : 's'} restantes`;
+
+        container.innerHTML = `
+          <div class="bg-emerald-950/40 border-2 border-emerald-500/80 rounded-2xl p-5 space-y-4 shadow-2xl animate-pop">
+            
+            <!-- Header Status -->
+            <div class="flex items-center justify-between border-b border-emerald-800/50 pb-3">
+              <div class="flex items-center gap-2 text-emerald-400">
+                <div class="w-7 h-7 rounded-full bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center font-black text-base">✓</div>
+                <span class="font-extrabold text-base tracking-wide text-emerald-300">SCTR VIGENTE</span>
+              </div>
+              <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[11px] font-black px-2.5 py-1 rounded-full">
+                ${badgeDiasText}
+              </span>
+            </div>
+
+            <!-- Details Grid -->
+            <div class="space-y-2 text-xs">
+              <div>
+                <span class="text-emerald-400/70 font-semibold uppercase text-[10px] block">Trabajador</span>
+                <span class="text-white font-bold text-base leading-tight block">${worker.nombre_completo}</span>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2 pt-1">
+                <div class="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
+                  <span class="text-slate-400 font-semibold uppercase text-[9px] block">Casa / Lote</span>
+                  <span class="text-white font-extrabold text-sm">${worker.codigo_casa}</span>
+                </div>
+                <div class="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
+                  <span class="text-slate-400 font-semibold uppercase text-[9px] block">Aseguradora</span>
+                  <span class="text-white font-bold text-xs truncate block">${worker.aseguradora || 'SCTR'}</span>
+                </div>
+              </div>
+
+              <div class="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
+                <span class="text-slate-400 font-semibold uppercase text-[9px] block">Propietario Responsable</span>
+                <span class="text-slate-200 font-bold text-xs">${propietario}</span>
+              </div>
+
+              <div class="flex items-center justify-between text-[11px] text-emerald-300/80 pt-1">
+                <span>Vigencia:</span>
+                <span class="font-bold text-white">${worker.fecha_inicio || '---'} al ${worker.fecha_vencimiento}</span>
+              </div>
+            </div>
+
+            <!-- BOTÓN DE INGRESO HABILITADO -->
+            <button 
+              onclick="confirmarIngreso()" 
+              class="w-full bg-emerald-500 hover:bg-emerald-400 active:scale-[0.98] text-slate-950 font-black py-3.5 px-4 rounded-xl shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2 transition-all uppercase tracking-wider text-sm mt-2"
+            >
+              <span>REGISTRAR INGRESO</span>
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+              </svg>
+            </button>
+
+          </div>
+        `;
+      } else {
+        // Caso 3: SCTR VENCIDO
+        playAudioFeedback(false);
+        const diasVencido = Math.abs(diasRestantes);
+
+        container.innerHTML = `
+          <div class="bg-red-950/40 border-2 border-red-600/80 rounded-2xl p-5 space-y-4 shadow-xl animate-pop">
+            
+            <div class="flex items-center justify-between border-b border-red-800/50 pb-3">
+              <div class="flex items-center gap-2 text-red-400">
+                <div class="w-7 h-7 rounded-full bg-red-600/20 border border-red-500/40 flex items-center justify-center font-black text-base">✕</div>
+                <span class="font-extrabold text-base tracking-wide text-red-200">SCTR VENCIDO</span>
+              </div>
+              <span class="bg-red-600/20 text-red-300 border border-red-500/40 text-[11px] font-black px-2.5 py-1 rounded-full">
+                Vencido hace ${diasVencido} día${diasVencido === 1 ? '' : 's'}
+              </span>
+            </div>
+
+            <div class="space-y-2 text-xs">
+              <div>
+                <span class="text-red-400/70 font-semibold uppercase text-[10px] block">Trabajador</span>
+                <span class="text-white font-bold text-base leading-tight block">${worker.nombre_completo}</span>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2 pt-1">
+                <div class="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
+                  <span class="text-slate-400 font-semibold uppercase text-[9px] block">Casa / Lote</span>
+                  <span class="text-white font-extrabold text-sm">${worker.codigo_casa}</span>
+                </div>
+                <div class="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
+                  <span class="text-slate-400 font-semibold uppercase text-[9px] block">Fecha Vencimiento</span>
+                  <span class="text-red-400 font-bold text-xs block">${worker.fecha_vencimiento}</span>
+                </div>
+              </div>
+
+              <p class="text-[11px] text-red-300/80 bg-red-900/20 p-2.5 rounded-xl border border-red-800/30 text-center font-medium">
+                ⛔ No se puede registrar ingreso sin seguro SCTR vigente.
+              </p>
+            </div>
+
+          </div>
+        `;
+      }
+    }
+
+    async function confirmarIngreso() {
+      if (!currentValidatedWorker) return;
+
+      const data = currentValidatedWorker;
+
+      if (supabaseClient && !IS_DEMO) {
+        await supabaseClient
+          .from('historial_ingresos')
+          .insert([{
+            dni: data.dni,
+            nombre_trabajador: data.nombre,
+            codigo_casa: data.codigo_casa,
+            propietario: data.propietario,
+            estado: 'PERMITIDO',
+            motivo: 'SCTR OK'
+          }]);
+      } else {
+        // Local Demo save
+        demoHistory.unshift({
+          id: Date.now(),
+          created_at: new Date().toISOString(),
+          fecha_salida: null,
+          dni: data.dni,
+          nombre_trabajador: data.nombre,
+          codigo_casa: data.codigo_casa,
+          propietario: data.propietario,
+          estado: 'PERMITIDO',
+          motivo: 'SCTR OK'
+        });
+      }
+
+      // Reset Form immediately
+      document.getElementById("dniInput").value = "";
+      document.getElementById("resultadoContainer").classList.add("hidden");
+      currentValidatedWorker = null;
+
+      // Refocus input
+      document.getElementById("dniInput").focus();
+
+      // Refresh background lists
+      cargarTrabajadoresEnObra();
+    }
+
+    async function cargarTrabajadoresEnObra() {
+      let activos = [];
+
+      if (supabaseClient && !IS_DEMO) {
+        const { data } = await supabaseClient
+          .from('historial_ingresos')
+          .select('*')
+          .is('fecha_salida', null)
+          .eq('estado', 'PERMITIDO')
+          .order('created_at', { ascending: false });
+        activos = data || [];
+      } else {
+        activos = demoHistory.filter(h => h.fecha_salida === null && h.estado === 'PERMITIDO');
+      }
+
+      window.cacheEnObra = activos;
+      renderListaEnObra(activos);
+    }
+
+    function renderListaEnObra(items) {
+      const container = document.getElementById("listaEnObra");
+      const badgeNav = document.getElementById("navBadgeEnObra");
+      const badgeCount = document.getElementById("badgeCountEnObra");
+
+      // Update counter badges
+      badgeCount.innerText = `${items.length} persona${items.length === 1 ? '' : 's'}`;
+      if (items.length > 0) {
+        badgeNav.innerText = items.length;
+        badgeNav.classList.remove("hidden");
+        badgeNav.classList.add("flex");
+      } else {
+        badgeNav.classList.add("hidden");
+        badgeNav.classList.remove("flex");
+      }
+
+      if (items.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-8 bg-slate-900 border border-slate-800 rounded-2xl p-4 text-slate-500 text-xs">
+            No hay trabajadores dentro del condominio actualmente.
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = items.map(w => {
+        // CÓDIGO NUEVO (Hora de Perú):
+        const hora = new Date(w.created_at).toLocaleTimeString('es-PE', { timeZone: 'America/Lima', hour: '2-digit', minute: '2-digit' });
+        return `
+          <div class="bg-slate-900 border border-slate-800 rounded-xl p-3.5 flex items-center justify-between gap-3 shadow-md">
+            <div class="space-y-0.5 min-w-0">
+              <div class="flex items-center gap-2">
+                <span class="bg-blue-600/20 text-blue-400 border border-blue-500/30 text-[10px] font-black px-2 py-0.5 rounded">
+                  Casa ${w.codigo_casa}
+                </span>
+                <span class="text-[10px] text-slate-400 font-medium">Ingresó ${hora}</span>
+              </div>
+              <h4 class="font-bold text-white text-sm truncate">${w.nombre_trabajador}</h4>
+              <p class="text-[11px] text-slate-400">DNI: ${w.dni}</p>
+            </div>
+
+            <button 
+              onclick="marcarSalida(${w.id || `'${w.dni}'`})" 
+              class="bg-amber-500/10 hover:bg-amber-500/20 active:scale-95 text-amber-400 border border-amber-500/30 px-3 py-2 rounded-xl text-xs font-bold shrink-0 transition-all flex items-center gap-1"
+            >
+              <span>Salida</span>
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+              </svg>
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function filtrarTrabajadoresEnObra() {
+      const q = document.getElementById("searchEnObra").value.toLowerCase().trim();
+      if (!window.cacheEnObra) return;
+      const filtrados = window.cacheEnObra.filter(w =>
+        w.nombre_trabajador.toLowerCase().includes(q) ||
+        w.dni.includes(q) ||
+        w.codigo_casa.toLowerCase().includes(q)
+      );
+      renderListaEnObra(filtrados);
+    }
+
+    async function marcarSalida(idOrDni) {
+      if (supabaseClient && !IS_DEMO) {
+        if (typeof idOrDni === 'number') {
+          await supabaseClient
+            .from('historial_ingresos')
+            .update({ fecha_salida: new Date().toISOString() })
+            .eq('id', idOrDni);
+        } else {
+          await supabaseClient
+            .from('historial_ingresos')
+            .update({ fecha_salida: new Date().toISOString() })
+            .eq('dni', idOrDni)
+            .is('fecha_salida', null);
+        }
+      } else {
+        const item = demoHistory.find(h => (h.id === idOrDni || h.dni === idOrDni) && h.fecha_salida === null);
+        if (item) {
+          item.fecha_salida = new Date().toISOString();
+        }
+      }
+
+      cargarTrabajadoresEnObra();
+      cargarHistorial();
+    }
+
+    async function cargarHistorial() {
+      let historial = [];
+
+      if (supabaseClient && !IS_DEMO) {
+        const { data } = await supabaseClient
+          .from('historial_ingresos')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(40);
+        historial = data || [];
+      } else {
+        historial = [...demoHistory];
+      }
+
+      window.cacheHistorial = historial;
+      renderListaHistorial(historial);
+    }
+
+    function renderListaHistorial(items) {
+      const container = document.getElementById("listaHistorial");
+
+      if (items.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-8 bg-slate-900 border border-slate-800 rounded-2xl p-4 text-slate-500 text-xs">
+            Sin registros en el historial.
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = items.map(h => {
+        // CÓDIGO NUEVO (Hora y Fecha de Perú):
+        const fecha = new Date(h.created_at).toLocaleDateString('es-PE', { timeZone: 'America/Lima', day: '2-digit', month: '2-digit' });
+        const horaEntrada = new Date(h.created_at).toLocaleTimeString('es-PE', { timeZone: 'America/Lima', hour: '2-digit', minute: '2-digit' });
+        const horaSalida = h.fecha_salida
+          ? new Date(h.fecha_salida).toLocaleTimeString('es-PE', { timeZone: 'America/Lima', hour: '2-digit', minute: '2-digit' })
+          : '<span class="text-emerald-400 font-bold">En Obra</span>';
+
+        return `
+          <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 space-y-1 shadow-sm text-xs">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-white text-sm">${h.nombre_trabajador}</span>
+              <span class="bg-slate-800 text-slate-300 text-[10px] font-bold px-2 py-0.5 rounded">
+                Casa ${h.codigo_casa}
+              </span>
+            </div>
+            
+            <div class="flex items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-slate-800/60">
+              <span>DNI: ${h.dni} • ${fecha}</span>
+              <span>In: <b>${horaEntrada}</b> | Out: <b>${horaSalida}</b></span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function filtrarHistorial() {
+      const q = document.getElementById("searchHistorial").value.toLowerCase().trim();
+      if (!window.cacheHistorial) return;
+      const filtrados = window.cacheHistorial.filter(h =>
+        h.nombre_trabajador.toLowerCase().includes(q) ||
+        h.dni.includes(q) ||
+        h.codigo_casa.toLowerCase().includes(q)
+      );
+      renderListaHistorial(filtrados);
+    }
+
+    function switchTab(tab) {
+      document.getElementById("tab-validar").classList.add("hidden");
+      document.getElementById("tab-en-obra").classList.add("hidden");
+      document.getElementById("tab-historial").classList.add("hidden");
+
+      // Reset Nav button colors
+      document.getElementById("navBtnValidar").className = "flex flex-col items-center justify-center gap-1 text-slate-400 font-medium text-[11px] transition-colors";
+      document.getElementById("navBtnEnObra").className = "flex flex-col items-center justify-center gap-1 text-slate-400 font-medium text-[11px] transition-colors relative";
+      document.getElementById("navBtnHistorial").className = "flex flex-col items-center justify-center gap-1 text-slate-400 font-medium text-[11px] transition-colors";
+
+      if (tab === 'validar') {
+        document.getElementById("tab-validar").classList.remove("hidden");
+        document.getElementById("navBtnValidar").className = "flex flex-col items-center justify-center gap-1 text-blue-500 font-bold text-[11px] transition-colors";
+        document.getElementById("dniInput").focus();
+      } else if (tab === 'en-obra') {
+        document.getElementById("tab-en-obra").classList.remove("hidden");
+        document.getElementById("navBtnEnObra").className = "flex flex-col items-center justify-center gap-1 text-blue-500 font-bold text-[11px] transition-colors relative";
+        cargarTrabajadoresEnObra();
+      } else if (tab === 'historial') {
+        document.getElementById("tab-historial").classList.remove("hidden");
+        document.getElementById("navBtnHistorial").className = "flex flex-col items-center justify-center gap-1 text-blue-500 font-bold text-[11px] transition-colors";
+        cargarHistorial();
+      }
+    }
+
+    function openSettingsModal() {
+      document.getElementById("cfgUrl").value = SUPABASE_URL;
+      document.getElementById("cfgKey").value = SUPABASE_KEY;
+      document.getElementById("cfgDemo").checked = IS_DEMO;
+      document.getElementById("settingsModal").classList.remove("hidden");
+    }
+
+    function closeSettingsModal() {
+      document.getElementById("settingsModal").classList.add("hidden");
+    }
+
+    function saveSettings() {
+      SUPABASE_URL = document.getElementById("cfgUrl").value.trim();
+      SUPABASE_KEY = document.getElementById("cfgKey").value.trim();
+      IS_DEMO = document.getElementById("cfgDemo").checked;
+
+      localStorage.setItem("tot_supa_url", SUPABASE_URL);
+      localStorage.setItem("tot_supa_key", SUPABASE_KEY);
+      localStorage.setItem("tot_demo", IS_DEMO);
+
+      initSupabase();
+      closeSettingsModal();
+      alert("Configuración actualizada.");
+    }
+
+    // Trigger validation on Enter key press
+    document.getElementById("dniInput").addEventListener("keypress", function (e) {
+      if (e.key === "Enter") validarDNI();
+    });
+
+    // App Startup
+    initSupabase();
+    cargarTrabajadoresEnObra();
+  </script>
+
+</body>
+
+</html>
