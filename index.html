@@ -745,19 +745,19 @@
         if (typeof idOrDni === 'number') {
           await supabaseClient
             .from('historial_ingresos')
-            .update({ fecha_salida: new Date().toISOString() })
+            .update({ fecha_salida: horaPeru })
             .eq('id', idOrDni);
         } else {
           await supabaseClient
             .from('historial_ingresos')
-            .update({ fecha_salida: new Date().toISOString() })
+            .update({ fecha_salida: horaPeru })
             .eq('dni', idOrDni)
             .is('fecha_salida', null);
         }
       } else {
         const item = demoHistory.find(h => (h.id === idOrDni || h.dni === idOrDni) && h.fecha_salida === null);
         if (item) {
-          item.fecha_salida = new Date().toISOString();
+          item.fecha_salida = horaPeru;
         }
       }
 
