@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" class="h-full bg-slate-900">
+<html lang="es" class="h-full bg-slate-100">
 
 <head>
   <meta charset="UTF-8">
@@ -78,42 +78,29 @@
   </style>
 </head>
 
-<body class="h-full bg-slate-950 text-slate-100 flex flex-col antialiased selection:bg-blue-500 selection:text-white">
+<body class="h-full bg-slate-100 text-slate-900 flex flex-col antialiased selection:bg-blue-600 selection:text-white">
 
   <!-- Header Bar -->
   <header
-    class="sticky top-0 z-30 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 py-3 flex items-center justify-between shadow-sm">
+    class="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-200 px-4 py-3 flex items-center justify-between shadow-sm">
     <div class="flex items-center gap-2">
       <div
-        class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center font-black text-white text-lg tracking-wider shadow-md shadow-blue-500/20">
+        class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center font-black text-white text-lg tracking-wider shadow-md shadow-blue-600/20">
         T
       </div>
       <div>
-        <h1 class="font-extrabold text-base tracking-wider text-white leading-tight">TOTORITAS</h1>
-        <p class="text-[10px] text-slate-400 font-medium tracking-tight">Control de Garita & SCTR</p>
+        <h1 class="font-extrabold text-base tracking-wider text-slate-900 leading-tight">TOTORITAS</h1>
+        <p class="text-[10px] text-slate-500 font-bold tracking-tight">Control de Garita & SCTR</p>
       </div>
     </div>
 
     <div class="flex items-center gap-2">
       <!-- Status Badge -->
       <span id="connectionBadge"
-        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
-        <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
-        <span>Demo</span>
+        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+        <span>Conectado</span>
       </span>
-
-      <!-- Settings Icon -->
-      <button onclick="openSettingsModal()"
-        class="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
-        title="Configuración">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
-          </path>
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z">
-          </path>
-        </svg>
-      </button>
     </div>
   </header>
 
@@ -124,18 +111,18 @@
     <section id="tab-validar" class="space-y-4">
 
       <!-- Input Card -->
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
-        <label for="dniInput" class="block text-xs font-bold text-slate-400 uppercase tracking-wider">
+      <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-3">
+        <label for="dniInput" class="block text-xs font-black text-slate-600 uppercase tracking-wider">
           Ingrese DNI
         </label>
 
         <div class="space-y-3">
           <input type="text" id="dniInput" placeholder="Escriba DNI aquí..." maxlength="12" inputmode="numeric"
             autocomplete="off"
-            class="w-full bg-slate-950 border-2 border-slate-700 focus:border-blue-500 rounded-xl px-4 py-3.5 text-center text-2xl font-black text-white placeholder-slate-600 outline-none transition-all tracking-widest shadow-inner">
+            class="w-full bg-slate-50 border-2 border-slate-300 focus:border-blue-600 focus:bg-white rounded-xl px-4 py-3.5 text-center text-2xl font-black text-slate-900 placeholder-slate-400 outline-none transition-all tracking-widest">
 
           <button id="btnValidar" onclick="validarDNI()"
-            class="w-full bg-blue-600 hover:bg-blue-500 active:scale-[0.98] text-white font-extrabold py-3.5 px-4 rounded-xl shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2 transition-all uppercase tracking-wider text-sm">
+            class="w-full bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-extrabold py-3.5 px-4 rounded-xl shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2 transition-all uppercase tracking-wider text-sm">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -155,7 +142,7 @@
 
       <div class="flex items-center justify-between">
         <div>
-          <h2 class="font-bold text-lg text-white">Trabajadores en Obra</h2>
+          <h2 class="font-bold text-lg text-slate-900">Trabajadores en Obra</h2>
           <p class="text-xs text-slate-400">Personal actualmente dentro del condominio</p>
         </div>
         <span id="badgeCountEnObra"
@@ -188,7 +175,7 @@
 
       <div class="flex items-center justify-between">
         <div>
-          <h2 class="font-bold text-lg text-white">Historial de Accesos</h2>
+          <h2 class="font-bold text-lg text-slate-900">Historial de Accesos</h2>
           <p class="text-xs text-slate-400">Registro completo de entradas y salidas</p>
         </div>
         <button onclick="cargarHistorial()" class="text-xs text-blue-400 font-semibold hover:underline">
@@ -219,12 +206,12 @@
 
   <!-- Fixed Bottom Navigation Bar -->
   <nav
-    class="fixed bottom-0 inset-x-0 bg-slate-900/95 border-t border-slate-800 backdrop-blur-lg z-30 max-w-md mx-auto">
+    class="fixed bottom-0 inset-x-0 bg-white/95 border-t border-slate-200 backdrop-blur-lg z-30 max-w-md mx-auto shadow-lg">
     <div class="grid grid-cols-3 h-16">
 
       <!-- Tab 1: Validar -->
       <button id="navBtnValidar" onclick="switchTab('validar')"
-        class="flex flex-col items-center justify-center gap-1 text-blue-500 font-bold text-[11px] transition-colors">
+        class="flex flex-col items-center justify-center gap-1 text-blue-600 font-bold text-[11px] transition-colors">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"
             d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -234,7 +221,7 @@
 
       <!-- Tab 2: En Obra -->
       <button id="navBtnEnObra" onclick="switchTab('en-obra')"
-        class="flex flex-col items-center justify-center gap-1 text-slate-400 font-medium text-[11px] transition-colors relative">
+        class="flex flex-col items-center justify-center gap-1 text-slate-500 font-medium text-[11px] transition-colors relative">
         <div class="relative">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"
@@ -251,7 +238,7 @@
 
       <!-- Tab 3: Historial -->
       <button id="navBtnHistorial" onclick="switchTab('historial')"
-        class="flex flex-col items-center justify-center gap-1 text-slate-400 font-medium text-[11px] transition-colors">
+        class="flex flex-col items-center justify-center gap-1 text-slate-500 font-medium text-[11px] transition-colors">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"
             d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01">
@@ -376,14 +363,32 @@
 
     function updateBadgeStatus(connected) {
       const badge = document.getElementById("connectionBadge");
-      if (connected) {
-        badge.className = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
-        badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span><span>Supabase</span>`;
+      if (connected && navigator.onLine) {
+        // ESTADO: CONECTADO (Verde legible sobre fondo claro)
+        badge.className = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300";
+        badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span><span>Conectado</span>`;
       } else {
-        badge.className = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20";
-        badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span><span>Demo</span>`;
+        // ESTADO: SIN CONEXIÓN (Rojo legible sobre fondo claro)
+        badge.className = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-red-100 text-red-800 border border-red-300";
+        badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-red-600 animate-pulse"></span><span>Sin Conexión</span>`;
       }
     }
+
+    let offlineTimeout = null;
+
+    // Manejo inteligente de red con margen de tolerancia
+    window.addEventListener('online', () => {
+      clearTimeout(offlineTimeout);
+      updateBadgeStatus(true);
+    });
+
+    window.addEventListener('offline', () => {
+      clearTimeout(offlineTimeout);
+      // Espera 3.5 segundos antes de marcar "Sin Conexión" por si es un micro-parpadeo
+      offlineTimeout = setTimeout(() => {
+        updateBadgeStatus(false);
+      }, 3500);
+    });
 
     function playAudioFeedback(isOk) {
       try {
@@ -498,19 +503,19 @@
       if (!worker) {
         playAudioFeedback(false);
         container.innerHTML = `
-          <div class="bg-red-950/40 border-2 border-red-600/60 rounded-2xl p-5 space-y-3 shadow-xl animate-pop">
-            <div class="flex items-center gap-2.5 text-red-400">
-              <div class="w-8 h-8 rounded-full bg-red-600/20 border border-red-500/40 flex items-center justify-center font-black text-lg">✕</div>
-              <div>
-                <h3 class="font-black text-base text-red-200 uppercase tracking-wide">NO REGISTRADO</h3>
-                <p class="text-xs text-red-400 font-medium">DNI no registrado en el sistema SCTR</p>
-              </div>
-            </div>
-            <p class="text-xs text-red-300/80 bg-red-900/30 p-3 rounded-xl border border-red-800/40">
-              El trabajador con DNI <b>${dni}</b> no cuenta con póliza registrada en el directorio. Acceso denegado.
-            </p>
+      <div class="bg-red-50 border-2 border-red-500 rounded-2xl p-5 space-y-3 shadow-md animate-pop">
+        <div class="flex items-center gap-2.5 text-red-800">
+          <div class="w-8 h-8 rounded-full bg-red-600 text-white flex items-center justify-center font-black text-lg">✕</div>
+          <div>
+            <h3 class="font-black text-base text-red-950 uppercase tracking-wide">NO REGISTRADO</h3>
+            <p class="text-xs text-red-700 font-semibold">DNI no registrado en el sistema SCTR</p>
           </div>
-        `;
+        </div>
+        <p class="text-xs text-red-900 bg-red-100 p-3 rounded-xl border border-red-200 font-medium">
+          El trabajador con DNI <b>${dni}</b> no cuenta con póliza registrada en el directorio. Acceso denegado.
+        </p>
+      </div>
+    `;
         return;
       }
 
@@ -523,7 +528,6 @@
       const isActivo = worker.activo && (diasRestantes >= 0);
 
       if (isActivo) {
-        // Caso 2: SCTR VIGENTE / ACTIVO
         playAudioFeedback(true);
         currentValidatedWorker = {
           dni: worker.dni,
@@ -537,92 +541,93 @@
           : `${diasRestantes} día${diasRestantes === 1 ? '' : 's'} restantes`;
 
         container.innerHTML = `
-          <div class="bg-emerald-950/40 border-2 border-emerald-500/80 rounded-2xl p-5 space-y-4 shadow-2xl animate-pop">
-            
-            <!-- Header Status -->
-            <div class="flex items-center justify-between border-b border-emerald-800/50 pb-3">
-              <div class="flex items-center gap-2 text-emerald-400">
-                <div class="w-7 h-7 rounded-full bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center font-black text-base">✓</div>
-                <span class="font-extrabold text-base tracking-wide text-emerald-300">SCTR VIGENTE</span>
-              </div>
-              <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[11px] font-black px-2.5 py-1 rounded-full">
-                ${badgeDiasText}
-              </span>
-            </div>
+    <div class="bg-emerald-50 border-2 border-emerald-500 rounded-2xl p-5 space-y-4 shadow-md animate-pop">
+      
+      <!-- Header Status -->
+      <div class="flex items-center justify-between border-b border-emerald-200 pb-3">
+        <div class="flex items-center gap-2 text-emerald-800">
+          <div class="w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center font-black text-base">✓</div>
+          <span class="font-extrabold text-base tracking-wide text-emerald-950">SCTR VIGENTE</span>
+        </div>
+        <span class="bg-emerald-200 text-emerald-900 border border-emerald-300 text-[11px] font-black px-2.5 py-1 rounded-full">
+          ${badgeDiasText}
+        </span>
+      </div>
 
-            <!-- Details -->
-            <div class="space-y-3 text-xs">
-              <div>
-                <span class="text-emerald-400/70 font-semibold uppercase text-[10px] block">Trabajador</span>
-                <span class="text-white font-extrabold text-lg leading-tight block">${worker.nombre_completo}</span>
-              </div>
+      <!-- Details -->
+      <div class="space-y-3 text-xs">
+        <div>
+          <span class="text-emerald-800 font-bold uppercase text-[10px] block">Trabajador</span>
+          <span class="text-slate-900 font-extrabold text-lg leading-tight block">${worker.nombre_completo}</span>
+        </div>
 
-              <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
-                <span class="text-slate-400 font-semibold uppercase text-[10px] block">Propietario</span>
-                <span class="text-white font-bold text-sm block">${propietario}</span>
-              </div>
+        <div class="bg-white p-3 rounded-xl border border-emerald-200 shadow-sm">
+          <span class="text-slate-500 font-bold uppercase text-[10px] block">Propietario</span>
+          <span class="text-slate-900 font-bold text-sm block">${propietario}</span>
+        </div>
 
-              <div class="flex items-center justify-between text-[11px] text-emerald-300/80 pt-1">
-                <span>Vigencia:</span>
-                <span class="font-bold text-white">${formatearFechaTexto(worker.fecha_inicio)} al ${formatearFechaTexto(worker.fecha_vencimiento)}</span>
-              </div>
-            </div>
+        <div class="flex items-center justify-between text-[11px] text-emerald-900 font-medium pt-1">
+          <span>Vigencia:</span>
+          <span class="font-bold text-slate-900">${formatearFechaTexto(worker.fecha_inicio)} al ${formatearFechaTexto(worker.fecha_vencimiento)}</span>
+        </div>
+      </div>
 
-            <!-- BOTÓN DE INGRESO HABILITADO -->
-            <button 
-              onclick="confirmarIngreso()" 
-              class="w-full bg-emerald-500 hover:bg-emerald-400 active:scale-[0.98] text-slate-950 font-black py-3.5 px-4 rounded-xl shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2 transition-all uppercase tracking-wider text-sm mt-2"
-            >
-              <span>REGISTRAR INGRESO</span>
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-              </svg>
-            </button>
+      <!-- BOTÓN DE INGRESO HABILITADO -->
+      <button 
+        onclick="confirmarIngreso()" 
+        class="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white font-extrabold py-3.5 px-4 rounded-xl shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 transition-all uppercase tracking-wider text-sm mt-2"
+      >
+        <span>REGISTRAR INGRESO</span>
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+        </svg>
+      </button>
 
-          </div>
-        `;
+    </div>
+  `;
+
       } else {
         // Caso 3: SCTR VENCIDO
         playAudioFeedback(false);
         const diasVencido = Math.abs(diasRestantes);
 
         container.innerHTML = `
-          <div class="bg-red-950/40 border-2 border-red-600/80 rounded-2xl p-5 space-y-4 shadow-xl animate-pop">
-            
-            <div class="flex items-center justify-between border-b border-red-800/50 pb-3">
-              <div class="flex items-center gap-2 text-red-400">
-                <div class="w-7 h-7 rounded-full bg-red-600/20 border border-red-500/40 flex items-center justify-center font-black text-base">✕</div>
-                <span class="font-extrabold text-base tracking-wide text-red-200">SCTR VENCIDO</span>
-              </div>
-              <span class="bg-red-600/20 text-red-300 border border-red-500/40 text-[11px] font-black px-2.5 py-1 rounded-full">
-                Vencido hace ${diasVencido} día${diasVencido === 1 ? '' : 's'}
-              </span>
-            </div>
-
-            <div class="space-y-2 text-xs">
-              <div>
-                <span class="text-red-400/70 font-semibold uppercase text-[10px] block">Trabajador</span>
-                <span class="text-white font-bold text-base leading-tight block">${worker.nombre_completo}</span>
-              </div>
-
-              <div class="grid grid-cols-2 gap-2 pt-1">
-                <div class="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
-                  <span class="text-slate-400 font-semibold uppercase text-[9px] block">Casa / Lote</span>
-                  <span class="text-white font-extrabold text-sm">${worker.codigo_casa}</span>
-                </div>
-                <div class="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
-                  <span class="text-slate-400 font-semibold uppercase text-[9px] block">Fecha Vencimiento</span>
-                  <span class="text-red-400 font-bold text-xs block">${worker.fecha_vencimiento}</span>
-                </div>
-              </div>
-
-              <p class="text-[11px] text-red-300/80 bg-red-900/20 p-2.5 rounded-xl border border-red-800/30 text-center font-medium">
-                ⛔ No se puede registrar ingreso sin seguro SCTR vigente.
-              </p>
-            </div>
-
+      <div class="bg-red-50 border-2 border-red-500 rounded-2xl p-5 space-y-4 shadow-md animate-pop">
+        
+        <div class="flex items-center justify-between border-b border-red-200 pb-3">
+          <div class="flex items-center gap-2 text-red-800">
+            <div class="w-7 h-7 rounded-full bg-red-600 text-white flex items-center justify-center font-black text-base">✕</div>
+            <span class="font-extrabold text-base tracking-wide text-red-950">SCTR VENCIDO</span>
           </div>
-        `;
+          <span class="bg-red-200 text-red-900 border border-red-300 text-[11px] font-black px-2.5 py-1 rounded-full">
+            Vencido hace ${diasVencido} día${diasVencido === 1 ? '' : 's'}
+          </span>
+        </div>
+
+        <div class="space-y-3 text-xs">
+          <div>
+            <span class="text-red-800 font-bold uppercase text-[10px] block">Trabajador</span>
+            <span class="text-slate-900 font-extrabold text-lg leading-tight block">${worker.nombre_completo}</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 pt-1">
+            <div class="bg-white p-2.5 rounded-xl border border-red-200 shadow-sm">
+              <span class="text-slate-500 font-bold uppercase text-[9px] block">Casa / Lote</span>
+              <span class="text-slate-900 font-extrabold text-sm">${worker.codigo_casa}</span>
+            </div>
+            <div class="bg-white p-2.5 rounded-xl border border-red-200 shadow-sm">
+              <span class="text-slate-500 font-bold uppercase text-[9px] block">Fecha Vencimiento</span>
+              <span class="text-red-700 font-extrabold text-xs block">${formatearFechaTexto(worker.fecha_vencimiento)}</span>
+            </div>
+          </div>
+
+          <p class="text-[11px] text-red-900 bg-red-100 p-2.5 rounded-xl border border-red-200 text-center font-bold">
+            ⛔ No se puede registrar ingreso sin seguro SCTR vigente.
+          </p>
+        </div>
+
+      </div>
+    `;
       }
     }
 
