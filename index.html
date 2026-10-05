@@ -627,48 +627,112 @@
       }
     }
 
+    // async function confirmarIngreso() {
+    //   if (!currentValidatedWorker) return;
+
+    //   const data = currentValidatedWorker;
+
+    //   if (supabaseClient && !IS_DEMO) {
+    //     await supabaseClient
+    //       .from('historial_ingresos')
+    //       .insert([{
+    //         dni: data.dni,
+    //         nombre_trabajador: data.nombre,
+    //         codigo_casa: data.codigo_casa,
+    //         propietario: data.propietario,
+    //         estado: 'PERMITIDO',
+    //         motivo: 'SCTR OK'
+    //       }]);
+    //   } else {
+    //     // Local Demo save
+    //     demoHistory.unshift({
+    //       id: Date.now(),
+    //       created_at: new Date().toISOString(),
+    //       fecha_salida: null,
+    //       dni: data.dni,
+    //       nombre_trabajador: data.nombre,
+    //       codigo_casa: data.codigo_casa,
+    //       propietario: data.propietario,
+    //       estado: 'PERMITIDO',
+    //       motivo: 'SCTR OK'
+    //     });
+    //   }
+
+    //   // Reset Form immediately
+    //   document.getElementById("dniInput").value = "";
+    //   document.getElementById("resultadoContainer").classList.add("hidden");
+    //   currentValidatedWorker = null;
+
+    //   // Refocus input
+    //   document.getElementById("dniInput").focus();
+
+    //   // Refresh background lists
+    //   cargarTrabajadoresEnObra();
+    // }
+
     async function confirmarIngreso() {
-      if (!currentValidatedWorker) return;
+  if (!currentValidatedWorker) return;
 
-      const data = currentValidatedWorker;
+  const container = document.getElementById("resultadoContainer");
+  const data = currentValidatedWorker;
 
-      if (supabaseClient && !IS_DEMO) {
-        await supabaseClient
-          .from('historial_ingresos')
-          .insert([{
-            dni: data.dni,
-            nombre_trabajador: data.nombre,
-            codigo_casa: data.codigo_casa,
-            propietario: data.propietario,
-            estado: 'PERMITIDO',
-            motivo: 'SCTR OK'
-          }]);
-      } else {
-        // Local Demo save
-        demoHistory.unshift({
-          id: Date.now(),
-          created_at: new Date().toISOString(),
-          fecha_salida: null,
-          dni: data.dni,
-          nombre_trabajador: data.nombre,
-          codigo_casa: data.codigo_casa,
-          propietario: data.propietario,
-          estado: 'PERMITIDO',
-          motivo: 'SCTR OK'
-        });
-      }
+  // 1. DIBUJAR PANTALLA DE ÉXITO VISUAL CON CHECK ANIMADO Y PALABRA CORTA
+  container.innerHTML = `
+    <div class="bg-emerald-600 text-white rounded-2xl p-6 text-center space-y-3 shadow-xl animate-pop">
+      <!-- Círculo blanco con Check animado -->
+      <div class="w-20 h-20 bg-white text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-md">
+        <svg class="w-12 h-12 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path>
+        </svg>
+      </div>
 
-      // Reset Form immediately
-      document.getElementById("dniInput").value = "";
-      document.getElementById("resultadoContainer").classList.add("hidden");
-      currentValidatedWorker = null;
+      <!-- Texto corto y gigante para lectura rápida -->
+      <h2 class="text-3xl font-black tracking-wider uppercase">¡REGISTRADO!</h2>
+      <p class="text-sm font-bold text-emerald-100 truncate">${data.nombre.split(' ')[0]} ${data.nombre.split(' ')[1] || ''}</p>
+    </div>
+  `;
 
-      // Refocus input
-      document.getElementById("dniInput").focus();
+  // 2. REGISTRAR EN SUPABASE EN SEGUNDO PLANO
+  if (supabaseClient && !IS_DEMO) {
+    await supabaseClient
+      .from('historial_ingresos')
+      .insert([{
+        dni: data.dni,
+        nombre_trabajador: data.nombre,
+        codigo_casa: data.codigo_casa,
+        propietario: data.propietario,
+        estado: 'PERMITIDO',
+        motivo: 'SCTR OK'
+      }]);
+  } else {
+    // Modo Demo local
+    demoHistory.unshift({
+      id: Date.now(),
+      created_at: new Date().toISOString(),
+      fecha_salida: null,
+      dni: data.dni,
+      nombre_trabajador: data.nombre,
+      codigo_casa: data.codigo_casa,
+      propietario: data.propietario,
+      estado: 'PERMITIDO',
+      motivo: 'SCTR OK'
+    });
+  }
 
-      // Refresh background lists
-      cargarTrabajadoresEnObra();
-    }
+  // 3. ESPERAR 1.2 SEGUNDOS PARA QUE VEAN EL CHECK Y LUEGO REINICIAR LA PANTALLA
+  setTimeout(() => {
+    // Reset de formulario
+    document.getElementById("dniInput").value = "";
+    container.classList.add("hidden");
+    currentValidatedWorker = null;
+
+    // Refoco automático en la caja de texto
+    document.getElementById("dniInput").focus();
+
+    // Actualizar lista "En Obra"
+    cargarTrabajadoresEnObra();
+  }, 1200);
+}
 
     async function cargarTrabajadoresEnObra() {
       let activos = [];
