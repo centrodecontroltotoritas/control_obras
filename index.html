@@ -899,9 +899,11 @@
       alert("Configuración actualizada.");
     }
 
-    // Trigger validation on Enter key press
     document.getElementById("dniInput").addEventListener("keypress", function (e) {
-      if (e.key === "Enter") validarDNI();
+      if (e.key === "Enter") {
+        this.blur(); // 👈 Le dice al celular "cierra el teclado ahora"
+        validarDNI();
+      }
     });
 
     // App Startup
