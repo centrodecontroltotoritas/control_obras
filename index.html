@@ -51,14 +51,6 @@
       font-family: 'Inter', sans-serif;
     }
 
-    /* Ocultar barra flotante de Netlify */
-    iframe[src*="netlify"],
-    #netlify-modal-root,
-    netlify-drawer,
-    [id*="netlify"] {
-      display: none !important;
-    }
-
     /* Smooth transitions */
     .animate-pop {
       animation: pop 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -170,44 +162,12 @@
 
     </section>
 
-    <!-- ==================== PESTAÑA 3: HISTORIAL ==================== -->
-    <section id="tab-historial" class="hidden space-y-4">
-
-      <div class="flex items-center justify-between">
-        <div>
-          <h2 class="font-bold text-lg text-slate-900">Historial de Accesos</h2>
-          <p class="text-xs text-slate-400">Registro completo de entradas y salidas</p>
-        </div>
-        <button onclick="cargarHistorial()" class="text-xs text-blue-400 font-semibold hover:underline">
-          🔄 Actualizar
-        </button>
-      </div>
-
-      <!-- Buscador de historial -->
-      <div class="relative">
-        <input type="text" id="searchHistorial" oninput="filtrarHistorial()"
-          placeholder="Filtrar por DNI, Nombre o Casa..."
-          class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
-        <svg class="w-4 h-4 text-slate-500 absolute left-3.5 top-3" fill="none" stroke="currentColor"
-          viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-        </svg>
-      </div>
-
-      <!-- Contenedor del historial -->
-      <div id="listaHistorial" class="space-y-2.5">
-        <!-- Renderizado dinámico -->
-      </div>
-
-    </section>
-
   </main>
 
-  <!-- Fixed Bottom Navigation Bar -->
+  <!-- Fixed Bottom Navigation Bar (2 Pestañas) -->
   <nav
     class="fixed bottom-0 inset-x-0 bg-white/95 border-t border-slate-200 backdrop-blur-lg z-30 max-w-md mx-auto shadow-lg">
-    <div class="grid grid-cols-3 h-16">
+    <div class="grid grid-cols-2 h-16">
 
       <!-- Tab 1: Validar -->
       <button id="navBtnValidar" onclick="switchTab('validar')"
@@ -234,17 +194,6 @@
           </span>
         </div>
         <span>En Obra</span>
-      </button>
-
-      <!-- Tab 3: Historial -->
-      <button id="navBtnHistorial" onclick="switchTab('historial')"
-        class="flex flex-col items-center justify-center gap-1 text-slate-500 font-medium text-[11px] transition-colors">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"
-            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01">
-          </path>
-        </svg>
-        <span>Historial</span>
       </button>
 
     </div>
@@ -671,13 +620,13 @@
     // }
 
     async function confirmarIngreso() {
-  if (!currentValidatedWorker) return;
+      if (!currentValidatedWorker) return;
 
-  const container = document.getElementById("resultadoContainer");
-  const data = currentValidatedWorker;
+      const container = document.getElementById("resultadoContainer");
+      const data = currentValidatedWorker;
 
-  // 1. DIBUJAR PANTALLA DE ÉXITO VISUAL CON CHECK ANIMADO Y PALABRA CORTA
-  container.innerHTML = `
+      // 1. DIBUJAR PANTALLA DE ÉXITO VISUAL CON CHECK ANIMADO Y PALABRA CORTA
+      container.innerHTML = `
     <div class="bg-emerald-600 text-white rounded-2xl p-6 text-center space-y-3 shadow-xl animate-pop">
       <!-- Círculo blanco con Check animado -->
       <div class="w-20 h-20 bg-white text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-md">
@@ -688,51 +637,50 @@
 
       <!-- Texto corto y gigante para lectura rápida -->
       <h2 class="text-3xl font-black tracking-wider uppercase">¡REGISTRADO!</h2>
-      <p class="text-sm font-bold text-emerald-100 truncate">${data.nombre.split(' ')[0]} ${data.nombre.split(' ')[1] || ''}</p>
     </div>
   `;
 
-  // 2. REGISTRAR EN SUPABASE EN SEGUNDO PLANO
-  if (supabaseClient && !IS_DEMO) {
-    await supabaseClient
-      .from('historial_ingresos')
-      .insert([{
-        dni: data.dni,
-        nombre_trabajador: data.nombre,
-        codigo_casa: data.codigo_casa,
-        propietario: data.propietario,
-        estado: 'PERMITIDO',
-        motivo: 'SCTR OK'
-      }]);
-  } else {
-    // Modo Demo local
-    demoHistory.unshift({
-      id: Date.now(),
-      created_at: new Date().toISOString(),
-      fecha_salida: null,
-      dni: data.dni,
-      nombre_trabajador: data.nombre,
-      codigo_casa: data.codigo_casa,
-      propietario: data.propietario,
-      estado: 'PERMITIDO',
-      motivo: 'SCTR OK'
-    });
-  }
+      // 2. REGISTRAR EN SUPABASE EN SEGUNDO PLANO
+      if (supabaseClient && !IS_DEMO) {
+        await supabaseClient
+          .from('historial_ingresos')
+          .insert([{
+            dni: data.dni,
+            nombre_trabajador: data.nombre,
+            codigo_casa: data.codigo_casa,
+            propietario: data.propietario,
+            estado: 'PERMITIDO',
+            motivo: 'SCTR OK'
+          }]);
+      } else {
+        // Modo Demo local
+        demoHistory.unshift({
+          id: Date.now(),
+          created_at: new Date().toISOString(),
+          fecha_salida: null,
+          dni: data.dni,
+          nombre_trabajador: data.nombre,
+          codigo_casa: data.codigo_casa,
+          propietario: data.propietario,
+          estado: 'PERMITIDO',
+          motivo: 'SCTR OK'
+        });
+      }
 
-  // 3. ESPERAR 1.2 SEGUNDOS PARA QUE VEAN EL CHECK Y LUEGO REINICIAR LA PANTALLA
-  setTimeout(() => {
-    // Reset de formulario
-    document.getElementById("dniInput").value = "";
-    container.classList.add("hidden");
-    currentValidatedWorker = null;
+      // 3. ESPERAR 1.2 SEGUNDOS PARA QUE VEAN EL CHECK Y LUEGO REINICIAR LA PANTALLA
+      setTimeout(() => {
+        // Reset de formulario
+        document.getElementById("dniInput").value = "";
+        container.classList.add("hidden");
+        currentValidatedWorker = null;
 
-    // Refoco automático en la caja de texto
-    document.getElementById("dniInput").focus();
+        // Refoco automático en la caja de texto
+        document.getElementById("dniInput").focus();
 
-    // Actualizar lista "En Obra"
-    cargarTrabajadoresEnObra();
-  }, 1200);
-}
+        // Actualizar lista "En Obra"
+        cargarTrabajadoresEnObra();
+      }, 1200);
+    }
 
     async function cargarTrabajadoresEnObra() {
       let activos = [];
@@ -843,85 +791,15 @@
       }
 
       cargarTrabajadoresEnObra();
-      cargarHistorial();
-    }
-
-    async function cargarHistorial() {
-      let historial = [];
-
-      if (supabaseClient && !IS_DEMO) {
-        const { data } = await supabaseClient
-          .from('historial_ingresos')
-          .select('*')
-          .order('created_at', { ascending: false })
-          .limit(40);
-        historial = data || [];
-      } else {
-        historial = [...demoHistory];
-      }
-
-      window.cacheHistorial = historial;
-      renderListaHistorial(historial);
-    }
-
-    function renderListaHistorial(items) {
-      const container = document.getElementById("listaHistorial");
-
-      if (items.length === 0) {
-        container.innerHTML = `
-          <div class="text-center py-8 bg-slate-900 border border-slate-800 rounded-2xl p-4 text-slate-500 text-xs">
-            Sin registros en el historial.
-          </div>
-        `;
-        return;
-      }
-
-      container.innerHTML = items.map(h => {
-        // CÓDIGO NUEVO (Hora y Fecha de Perú):
-        const fecha = new Date(h.created_at).toLocaleDateString('es-PE', { timeZone: 'America/Lima', day: '2-digit', month: '2-digit' });
-        const horaEntrada = new Date(h.created_at).toLocaleTimeString('es-PE', { timeZone: 'America/Lima', hour: '2-digit', minute: '2-digit' });
-        const horaSalida = h.fecha_salida
-          ? new Date(h.fecha_salida).toLocaleTimeString('es-PE', { timeZone: 'America/Lima', hour: '2-digit', minute: '2-digit' })
-          : '<span class="text-emerald-400 font-bold">En Obra</span>';
-
-        return `
-          <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 space-y-1 shadow-sm text-xs">
-            <div class="flex items-center justify-between">
-              <span class="font-bold text-white text-sm">${h.nombre_trabajador}</span>
-              <span class="bg-slate-800 text-slate-300 text-[10px] font-bold px-2 py-0.5 rounded">
-                Casa ${h.codigo_casa}
-              </span>
-            </div>
-            
-            <div class="flex items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-slate-800/60">
-              <span>DNI: ${h.dni} • ${fecha}</span>
-              <span>In: <b>${horaEntrada}</b> | Out: <b>${horaSalida}</b></span>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    function filtrarHistorial() {
-      const q = document.getElementById("searchHistorial").value.toLowerCase().trim();
-      if (!window.cacheHistorial) return;
-      const filtrados = window.cacheHistorial.filter(h =>
-        h.nombre_trabajador.toLowerCase().includes(q) ||
-        h.dni.includes(q) ||
-        h.codigo_casa.toLowerCase().includes(q)
-      );
-      renderListaHistorial(filtrados);
     }
 
     function switchTab(tab) {
       document.getElementById("tab-validar").classList.add("hidden");
       document.getElementById("tab-en-obra").classList.add("hidden");
-      document.getElementById("tab-historial").classList.add("hidden");
 
       // Reset Nav button colors
       document.getElementById("navBtnValidar").className = "flex flex-col items-center justify-center gap-1 text-slate-400 font-medium text-[11px] transition-colors";
       document.getElementById("navBtnEnObra").className = "flex flex-col items-center justify-center gap-1 text-slate-400 font-medium text-[11px] transition-colors relative";
-      document.getElementById("navBtnHistorial").className = "flex flex-col items-center justify-center gap-1 text-slate-400 font-medium text-[11px] transition-colors";
 
       if (tab === 'validar') {
         document.getElementById("tab-validar").classList.remove("hidden");
@@ -931,10 +809,6 @@
         document.getElementById("tab-en-obra").classList.remove("hidden");
         document.getElementById("navBtnEnObra").className = "flex flex-col items-center justify-center gap-1 text-blue-500 font-bold text-[11px] transition-colors relative";
         cargarTrabajadoresEnObra();
-      } else if (tab === 'historial') {
-        document.getElementById("tab-historial").classList.remove("hidden");
-        document.getElementById("navBtnHistorial").className = "flex flex-col items-center justify-center gap-1 text-blue-500 font-bold text-[11px] transition-colors";
-        cargarHistorial();
       }
     }
 
