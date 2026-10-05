@@ -587,13 +587,14 @@
   `;
 
       } else {
-        // Caso 3: SCTR VENCIDO
+        // Caso 3: SCTR VENCIDO (Simplificado sin casa/lote)
         playAudioFeedback(false);
         const diasVencido = Math.abs(diasRestantes);
 
         container.innerHTML = `
       <div class="bg-red-50 border-2 border-red-500 rounded-2xl p-5 space-y-4 shadow-md animate-pop">
         
+        <!-- Encabezado de alerta -->
         <div class="flex items-center justify-between border-b border-red-200 pb-3">
           <div class="flex items-center gap-2 text-red-800">
             <div class="w-7 h-7 rounded-full bg-red-600 text-white flex items-center justify-center font-black text-base">✕</div>
@@ -604,21 +605,16 @@
           </span>
         </div>
 
+        <!-- Detalles principales -->
         <div class="space-y-3 text-xs">
           <div>
             <span class="text-red-800 font-bold uppercase text-[10px] block">Trabajador</span>
             <span class="text-slate-900 font-extrabold text-lg leading-tight block">${worker.nombre_completo}</span>
           </div>
 
-          <div class="grid grid-cols-2 gap-2 pt-1">
-            <div class="bg-white p-2.5 rounded-xl border border-red-200 shadow-sm">
-              <span class="text-slate-500 font-bold uppercase text-[9px] block">Casa / Lote</span>
-              <span class="text-slate-900 font-extrabold text-sm">${worker.codigo_casa}</span>
-            </div>
-            <div class="bg-white p-2.5 rounded-xl border border-red-200 shadow-sm">
-              <span class="text-slate-500 font-bold uppercase text-[9px] block">Fecha Vencimiento</span>
-              <span class="text-red-700 font-extrabold text-xs block">${formatearFechaTexto(worker.fecha_vencimiento)}</span>
-            </div>
+          <div class="bg-white p-3 rounded-xl border border-red-200 shadow-sm flex items-center justify-between">
+            <span class="text-slate-500 font-bold uppercase text-[10px]">Venció el:</span>
+            <span class="text-red-700 font-extrabold text-sm">${formatearFechaTexto(worker.fecha_vencimiento)}</span>
           </div>
 
           <p class="text-[11px] text-red-900 bg-red-100 p-2.5 rounded-xl border border-red-200 text-center font-bold">
