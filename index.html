@@ -245,7 +245,7 @@
     let IS_DEMO = false;
 
     let supabaseClient = null;
-    let currentValidatedWorker = null;
+    let currentValidatedWorkers = [];
 
     // Local Demo Data
     const demoWorkers = [
@@ -391,65 +391,60 @@
       const dni = input.value.trim();
       const container = document.getElementById("resultadoContainer");
 
-      // Declaración explícita de variables
-      let worker = null;
-      let propietario = "No asignado";
+      if (!dni) return;
+
+      let workersList = [];
 
       if (supabaseClient && !IS_DEMO) {
-        // Query trabajadores_sctr
-        const { data: workerData, error } = await supabaseClient
+        // Obtenemos TODOS los registros de este DNI
+        const { data: workersData, error } = await supabaseClient
           .from('trabajadores_sctr')
           .select('*')
-          .eq('dni', dni)
-          .maybeSingle();
+          .eq('dni', dni);
 
-        if (workerData) {
-          worker = workerData;
-          // Query directorio para obtener el nombre del dueño
-          if (worker.codigo_casa) {
-            const codigoLimpio = worker.codigo_casa.trim();
-
-            let { data: dirData, error: dirErr } = await supabaseClient
-              .from('directorio')
-              .select('*')
-              .ilike('Codigo', codigoLimpio)
-              .maybeSingle();
-
-            if (dirErr) {
-              const { data: dirDataAlt } = await supabaseClient
+        if (workersData && workersData.length > 0) {
+          // Buscamos el propietario para cada casa registrada
+          for (let worker of workersData) {
+            let propietario = "No asignado";
+            if (worker.codigo_casa) {
+              const codigoLimpio = worker.codigo_casa.trim();
+              let { data: dirData } = await supabaseClient
                 .from('directorio')
                 .select('*')
-                .ilike('codigo', codigoLimpio)
+                .ilike('Codigo', codigoLimpio)
                 .maybeSingle();
-              dirData = dirDataAlt;
-            }
 
-            if (dirData) {
-              propietario = dirData.Propietario || dirData.propietario || "No asignado";
+              if (!dirData) {
+                const { data: dirDataAlt } = await supabaseClient
+                  .from('directorio')
+                  .select('*')
+                  .ilike('codigo', codigoLimpio)
+                  .maybeSingle();
+                dirData = dirDataAlt;
+              }
+
+              if (dirData) {
+                propietario = dirData.Propietario || dirData.propietario || "No asignado";
+              }
             }
+            workersList.push({ ...worker, propietario });
           }
         }
       } else {
-        // Local Demo Mode
-        const found = demoWorkers.find(w => w.dni === dni);
-        if (found) {
-          worker = { ...found };
-          propietario = found.propietario;
-        }
+        // Local Demo Mode (filtra todos los que coincidan con el DNI)
+        workersList = demoWorkers.filter(w => w.dni === dni);
       }
 
-      renderResultadoCard(worker, propietario, dni);
+      renderResultadoCard(workersList, dni);
     }
 
-    function renderResultadoCard(worker, propietario, dni) {
+    function renderResultadoCard(workersList, dni) {
       const container = document.getElementById("resultadoContainer");
       container.innerHTML = "";
       container.classList.remove("hidden");
 
-      const hoyStr = new Date().toISOString().split('T')[0];
-
-      // Caso 1: NO REGISTRADO
-      if (!worker) {
+      // CASO 1: NO REGISTRADO
+      if (!workersList || workersList.length === 0) {
         playAudioFeedback(false);
         container.innerHTML = `
       <div class="bg-red-50 border-2 border-red-500 rounded-2xl p-5 space-y-3 shadow-md animate-pop">
@@ -457,123 +452,74 @@
           <div class="w-8 h-8 rounded-full bg-red-600 text-white flex items-center justify-center font-black text-lg">✕</div>
           <div>
             <h3 class="font-black text-base text-red-950 uppercase tracking-wide">NO REGISTRADO</h3>
-            <p class="text-xs text-red-700 font-semibold">DNI no registrado en el sistema SCTR</p>
           </div>
         </div>
         <p class="text-xs text-red-900 bg-red-100 p-3 rounded-xl border border-red-200 font-medium">
-          El trabajador con DNI <b>${dni}</b> no cuenta con póliza registrada en el directorio. Acceso denegado.
+          El trabajador con DNI <b>${dni}</b> no cuenta con póliza registrada. Acceso denegado.
         </p>
       </div>
     `;
         return;
       }
 
-      // Check date & status
+      playAudioFeedback(true);
+      currentValidatedWorkers = workersList;
+
+      const nombreTrabajador = workersList[0].nombre_completo;
+      const hoyStr = new Date().toISOString().split('T')[0];
       const hoy = new Date(hoyStr + 'T00:00:00');
-      const vencimiento = new Date(worker.fecha_vencimiento + 'T00:00:00');
-      const diffMs = vencimiento - hoy;
-      const diasRestantes = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
 
-      const isActivo = worker.activo && (diasRestantes >= 0);
-
-      if (isActivo) {
-        playAudioFeedback(true);
-        currentValidatedWorker = {
-          dni: worker.dni,
-          nombre: worker.nombre_completo,
-          codigo_casa: worker.codigo_casa,
-          propietario: propietario
-        };
-
-        const badgeDiasText = diasRestantes === 0
-          ? "Vence hoy mismo"
-          : `${diasRestantes} día${diasRestantes === 1 ? '' : 's'} restantes`;
-
-        container.innerHTML = `
-    <div class="bg-emerald-50 border-2 border-emerald-500 rounded-2xl p-5 space-y-4 shadow-md animate-pop">
-      
-      <!-- Header Status -->
-      <div class="flex items-center justify-between border-b border-emerald-200 pb-3">
-        <div class="flex items-center gap-2 text-emerald-800">
-          <div class="w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center font-black text-base">✓</div>
-          <span class="font-extrabold text-base tracking-wide text-emerald-950">SCTR VIGENTE</span>
-        </div>
-        <span class="bg-emerald-200 text-emerald-900 border border-emerald-300 text-[11px] font-black px-2.5 py-1 rounded-full">
-          ${badgeDiasText}
-        </span>
+      // Encabezado
+      let htmlContent = `
+    <div class="bg-white border border-slate-200 rounded-2xl p-5 space-y-4 shadow-md animate-pop">
+      <div class="text-center border-b border-slate-100 pb-3">
+        <span class="text-slate-400 font-bold uppercase text-[10px] block tracking-wider">Trabajador</span>
+        <span class="text-slate-900 font-black text-lg leading-tight block">${nombreTrabajador}</span>
       </div>
-
-      <!-- Details -->
-      <div class="space-y-3 text-xs">
-        <div>
-          <span class="text-emerald-800 font-bold uppercase text-[10px] block">Trabajador</span>
-          <span class="text-slate-900 font-extrabold text-lg leading-tight block">${worker.nombre_completo}</span>
-        </div>
-
-        <div class="bg-white p-3 rounded-xl border border-emerald-200 shadow-sm">
-          <span class="text-slate-500 font-bold uppercase text-[10px] block">Propietario</span>
-          <span class="text-slate-900 font-bold text-sm block">${propietario}</span>
-        </div>
-
-        <div class="flex items-center justify-between text-[11px] text-emerald-900 font-medium pt-1">
-          <span>Vigencia:</span>
-          <span class="font-bold text-slate-900">${formatearFechaTexto(worker.fecha_inicio)} al ${formatearFechaTexto(worker.fecha_vencimiento)}</span>
-        </div>
-      </div>
-
-      <!-- BOTÓN DE INGRESO HABILITADO -->
-      <button 
-        onclick="confirmarIngreso()" 
-        class="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white font-extrabold py-3.5 px-4 rounded-xl shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 transition-all uppercase tracking-wider text-sm mt-2"
-      >
-        <span>REGISTRAR INGRESO</span>
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-        </svg>
-      </button>
-
-    </div>
+      <h3 class="text-center font-bold text-[13px] text-slate-800">¿A qué casa ingresa hoy?</h3>
+      <div class="space-y-3">
   `;
 
-      } else {
-        // Caso 3: SCTR VENCIDO (Simplificado sin casa/lote)
-        playAudioFeedback(false);
-        const diasVencido = Math.abs(diasRestantes);
+      // Iterar sobre cada casa asignada
+      workersList.forEach((worker, index) => {
+        const vencimiento = new Date(worker.fecha_vencimiento + 'T00:00:00');
+        const diffMs = vencimiento - hoy;
+        const diasRestantes = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+        const isActivo = worker.activo && (diasRestantes >= 0);
 
-        container.innerHTML = `
-      <div class="bg-red-50 border-2 border-red-500 rounded-2xl p-5 space-y-4 shadow-md animate-pop">
-        
-        <!-- Encabezado de alerta -->
-        <div class="flex items-center justify-between border-b border-red-200 pb-3">
-          <div class="flex items-center gap-2 text-red-800">
-            <div class="w-7 h-7 rounded-full bg-red-600 text-white flex items-center justify-center font-black text-base">✕</div>
-            <span class="font-extrabold text-base tracking-wide text-red-950">SCTR VENCIDO</span>
+        if (isActivo) {
+          const badgeDiasText = diasRestantes === 0 ? "Vence hoy" : `Vence en ${diasRestantes} días`;
+          htmlContent += `
+        <div class="bg-emerald-50/50 border border-emerald-200 rounded-xl p-3.5 space-y-2">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm"></span>
+            <span class="font-extrabold text-[13px] text-emerald-950">${worker.propietario}</span>
           </div>
-          <span class="bg-red-200 text-red-900 border border-red-300 text-[11px] font-black px-2.5 py-1 rounded-full">
-            Vencido hace ${diasVencido} día${diasVencido === 1 ? '' : 's'}
-          </span>
+          <p class="text-[11px] text-emerald-700 font-bold ml-4">SCTR Vigente (${badgeDiasText})</p>
+          <button onclick="confirmarIngreso(${index})" class="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white font-extrabold py-2.5 rounded-lg shadow-sm shadow-emerald-600/20 text-xs transition-all tracking-wide">
+            REGISTRAR INGRESO
+          </button>
         </div>
-
-        <!-- Detalles principales -->
-        <div class="space-y-3 text-xs">
-          <div>
-            <span class="text-red-800 font-bold uppercase text-[10px] block">Trabajador</span>
-            <span class="text-slate-900 font-extrabold text-lg leading-tight block">${worker.nombre_completo}</span>
+      `;
+        } else {
+          const diasVencido = Math.abs(diasRestantes);
+          htmlContent += `
+        <div class="bg-red-50/50 border border-red-200 rounded-xl p-3.5 space-y-2 opacity-90">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-red-500 shadow-sm"></span>
+            <span class="font-extrabold text-[13px] text-red-950">${worker.propietario}</span>
           </div>
-
-          <div class="bg-white p-3 rounded-xl border border-red-200 shadow-sm flex items-center justify-between">
-            <span class="text-slate-500 font-bold uppercase text-[10px]">Venció el:</span>
-            <span class="text-red-700 font-extrabold text-sm">${formatearFechaTexto(worker.fecha_vencimiento)}</span>
-          </div>
-
-          <p class="text-[11px] text-red-900 bg-red-100 p-2.5 rounded-xl border border-red-200 text-center font-bold">
-            ⛔ No se puede registrar ingreso sin seguro SCTR vigente.
-          </p>
+          <p class="text-[11px] text-red-700 font-bold ml-4">SCTR Vencido (Venció hace ${diasVencido} días)</p>
+          <button disabled class="w-full bg-slate-200 text-slate-400 font-extrabold py-2.5 rounded-lg text-xs tracking-wide cursor-not-allowed">
+            ACCESO DENEGADO
+          </button>
         </div>
+      `;
+        }
+      });
 
-      </div>
-    `;
-      }
+      htmlContent += `</div></div>`;
+      container.innerHTML = htmlContent;
     }
 
     // async function confirmarIngreso() {
@@ -619,68 +565,61 @@
     //   cargarTrabajadoresEnObra();
     // }
 
-    async function confirmarIngreso() {
-      if (!currentValidatedWorker) return;
+    async function confirmarIngreso(index) {
+  if (!currentValidatedWorkers || currentValidatedWorkers.length === 0) return;
 
-      const container = document.getElementById("resultadoContainer");
-      const data = currentValidatedWorker;
+  const container = document.getElementById("resultadoContainer");
+  const data = currentValidatedWorkers[index]; // Selecciona la casa elegida
 
-      // 1. DIBUJAR PANTALLA DE ÉXITO VISUAL CON CHECK ANIMADO Y PALABRA CORTA
-      container.innerHTML = `
+  // 1. PANTALLA DE ÉXITO VISUAL
+  container.innerHTML = `
     <div class="bg-emerald-600 text-white rounded-2xl p-6 text-center space-y-3 shadow-xl animate-pop">
-      <!-- Círculo blanco con Check animado -->
       <div class="w-20 h-20 bg-white text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-md">
         <svg class="w-12 h-12 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path>
         </svg>
       </div>
-
-      <!-- Texto corto y gigante para lectura rápida -->
-      <h2 class="text-3xl font-black tracking-wider uppercase">¡REGISTRADO!</h2>
+      <h2 class="text-2xl font-black tracking-wider uppercase">¡REGISTRADO!</h2>
+      <p class="text-xs font-medium opacity-90">Ingreso a: ${data.propietario}</p>
     </div>
   `;
 
-      // 2. REGISTRAR EN SUPABASE EN SEGUNDO PLANO
-      if (supabaseClient && !IS_DEMO) {
-        await supabaseClient
-          .from('historial_ingresos')
-          .insert([{
-            dni: data.dni,
-            nombre_trabajador: data.nombre,
-            codigo_casa: data.codigo_casa,
-            propietario: data.propietario,
-            estado: 'PERMITIDO',
-            motivo: 'SCTR OK'
-          }]);
-      } else {
-        // Modo Demo local
-        demoHistory.unshift({
-          id: Date.now(),
-          created_at: new Date().toISOString(),
-          fecha_salida: null,
-          dni: data.dni,
-          nombre_trabajador: data.nombre,
-          codigo_casa: data.codigo_casa,
-          propietario: data.propietario,
-          estado: 'PERMITIDO',
-          motivo: 'SCTR OK'
-        });
-      }
+  // 2. REGISTRAR EN SUPABASE EN SEGUNDO PLANO
+  if (supabaseClient && !IS_DEMO) {
+    await supabaseClient
+      .from('historial_ingresos')
+      .insert([{
+        dni: data.dni,
+        nombre_trabajador: data.nombre_completo,
+        codigo_casa: data.codigo_casa,
+        propietario: data.propietario,
+        estado: 'PERMITIDO',
+        motivo: 'SCTR OK'
+      }]);
+  } else {
+    // Modo Demo
+    demoHistory.unshift({
+      id: Date.now(),
+      created_at: new Date().toISOString(),
+      fecha_salida: null,
+      dni: data.dni,
+      nombre_trabajador: data.nombre_completo,
+      codigo_casa: data.codigo_casa,
+      propietario: data.propietario,
+      estado: 'PERMITIDO',
+      motivo: 'SCTR OK'
+    });
+  }
 
-      // 3. ESPERAR 1.2 SEGUNDOS PARA QUE VEAN EL CHECK Y LUEGO REINICIAR LA PANTALLA
-      setTimeout(() => {
-        // Reset de formulario
-        document.getElementById("dniInput").value = "";
-        container.classList.add("hidden");
-        currentValidatedWorker = null;
-
-        // Refoco automático en la caja de texto
-        document.getElementById("dniInput").focus();
-
-        // Actualizar lista "En Obra"
-        cargarTrabajadoresEnObra();
-      }, 1200);
-    }
+  // 3. REINICIAR PANTALLA
+  setTimeout(() => {
+    document.getElementById("dniInput").value = "";
+    container.classList.add("hidden");
+    currentValidatedWorkers = [];
+    document.getElementById("dniInput").focus();
+    cargarTrabajadoresEnObra();
+  }, 1400);
+}
 
     async function cargarTrabajadoresEnObra() {
       let activos = [];
