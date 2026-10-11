@@ -466,8 +466,9 @@
       currentValidatedWorkers = workersList;
 
       const nombreTrabajador = workersList[0].nombre_completo;
-      const hoyStr = new Date().toISOString().split('T')[0];
-      const hoy = new Date(hoyStr + 'T00:00:00');
+      // Obtiene la fecha exacta según la zona horaria del dispositivo
+      const now = new Date();
+      const hoy = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
       // Encabezado
       let htmlContent = `
@@ -482,7 +483,9 @@
 
       // Iterar sobre cada casa asignada
       workersList.forEach((worker, index) => {
-        const vencimiento = new Date(worker.fecha_vencimiento + 'T00:00:00');
+        // Separa el año, mes y día para evitar desajustes de zona horaria
+        const [vYear, vMonth, vDay] = worker.fecha_vencimiento.split('-');
+        const vencimiento = new Date(vYear, vMonth - 1, vDay);
         const diffMs = vencimiento - hoy;
         const diasRestantes = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
         const isActivo = worker.activo && (diasRestantes >= 0);
@@ -566,13 +569,13 @@
     // }
 
     async function confirmarIngreso(index) {
-  if (!currentValidatedWorkers || currentValidatedWorkers.length === 0) return;
+      if (!currentValidatedWorkers || currentValidatedWorkers.length === 0) return;
 
-  const container = document.getElementById("resultadoContainer");
-  const data = currentValidatedWorkers[index]; // Selecciona la casa elegida
+      const container = document.getElementById("resultadoContainer");
+      const data = currentValidatedWorkers[index]; // Selecciona la casa elegida
 
-  // 1. PANTALLA DE ÉXITO VISUAL
-  container.innerHTML = `
+      // 1. PANTALLA DE ÉXITO VISUAL
+      container.innerHTML = `
     <div class="bg-emerald-600 text-white rounded-2xl p-6 text-center space-y-3 shadow-xl animate-pop">
       <div class="w-20 h-20 bg-white text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-md">
         <svg class="w-12 h-12 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -584,42 +587,42 @@
     </div>
   `;
 
-  // 2. REGISTRAR EN SUPABASE EN SEGUNDO PLANO
-  if (supabaseClient && !IS_DEMO) {
-    await supabaseClient
-      .from('historial_ingresos')
-      .insert([{
-        dni: data.dni,
-        nombre_trabajador: data.nombre_completo,
-        codigo_casa: data.codigo_casa,
-        propietario: data.propietario,
-        estado: 'PERMITIDO',
-        motivo: 'SCTR OK'
-      }]);
-  } else {
-    // Modo Demo
-    demoHistory.unshift({
-      id: Date.now(),
-      created_at: new Date().toISOString(),
-      fecha_salida: null,
-      dni: data.dni,
-      nombre_trabajador: data.nombre_completo,
-      codigo_casa: data.codigo_casa,
-      propietario: data.propietario,
-      estado: 'PERMITIDO',
-      motivo: 'SCTR OK'
-    });
-  }
+      // 2. REGISTRAR EN SUPABASE EN SEGUNDO PLANO
+      if (supabaseClient && !IS_DEMO) {
+        await supabaseClient
+          .from('historial_ingresos')
+          .insert([{
+            dni: data.dni,
+            nombre_trabajador: data.nombre_completo,
+            codigo_casa: data.codigo_casa,
+            propietario: data.propietario,
+            estado: 'PERMITIDO',
+            motivo: 'SCTR OK'
+          }]);
+      } else {
+        // Modo Demo
+        demoHistory.unshift({
+          id: Date.now(),
+          created_at: new Date().toISOString(),
+          fecha_salida: null,
+          dni: data.dni,
+          nombre_trabajador: data.nombre_completo,
+          codigo_casa: data.codigo_casa,
+          propietario: data.propietario,
+          estado: 'PERMITIDO',
+          motivo: 'SCTR OK'
+        });
+      }
 
-  // 3. REINICIAR PANTALLA
-  setTimeout(() => {
-    document.getElementById("dniInput").value = "";
-    container.classList.add("hidden");
-    currentValidatedWorkers = [];
-    document.getElementById("dniInput").focus();
-    cargarTrabajadoresEnObra();
-  }, 1400);
-}
+      // 3. REINICIAR PANTALLA
+      setTimeout(() => {
+        document.getElementById("dniInput").value = "";
+        container.classList.add("hidden");
+        currentValidatedWorkers = [];
+        document.getElementById("dniInput").focus();
+        cargarTrabajadoresEnObra();
+      }, 1400);
+    }
 
     async function cargarTrabajadoresEnObra() {
       let activos = [];
